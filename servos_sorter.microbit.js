@@ -1,39 +1,49 @@
-serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-  if (command.includes("NonRecyclable")) {
-    music.playTone(988, music.beat(BeatFraction.Whole));
-    moveServos("left");
-    basic.pause(5000);
-    resetServo();
-  } else {
-    music.playTone(440, music.beat(BeatFraction.Half));
-    moveServos("right");
-    basic.pause(5000);
-    resetServo();
-  }
-});
+// Init
+radio.setGroup(7)
+basic.pause(300)
+resetServo()
 
-function resetServos() {
-  servos.P1.setPulse(1500);
-  basic.pause(300);
+function resetServo() {
+    servos.P1.setPulse(1500)
+    basic.pause(300)
 }
 
-function moveServos(direction: string) {
-  if (direction == "left") {
-    servos.P1.setPulse(3000);
-  } else {
-    servos.P1.setPulse(0);
-  }
-
-  basic.pause(2000);
-  resetServos();
+function pauseServ() {
+    basic.pause(3000)
 }
+
+function moveServoTowardMax() {
+    servos.P1.setPulse(3000)
+    pauseServ()
+    resetServo()
+}
+
+function moveServoTowardMin() {
+    servos.P1.setPulse(0)
+    pauseServ()
+    resetServo()
+} 
+
+serial.onDataReceived(serial.delimiters(Delimiters.NewLine), () => {
+    const command = serial.readLine()
+    if (command.includes("NonRecyclable")) {
+        music.playTone(440, music.beat(BeatFraction.Half));
+        moveServoTowardMax()
+    } else {
+        music.playTone(440, music.beat(BeatFraction.Whole));
+        moveServoTowardMin()
+    }
+    radio.sendString("measureDistance")
+})
 
 input.onButtonPressed(Button.A, function () {
-  moveServos("left");
-});
+    moveServoTowardMin()
+})
 
 input.onButtonPressed(Button.B, function () {
-  moveServos("right");
-});
+    moveServoTowardMax()
+})
 
-resetServos();
+basic.forever(function () {
+    basic.showIcon(IconNames.Happy)
+})
