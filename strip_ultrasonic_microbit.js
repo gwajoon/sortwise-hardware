@@ -14,33 +14,32 @@ grove.onGesture(GroveGesture.Down, function () {
     radio.sendString("openBox")
 })
 
-let distance = 0
-let previouslyDetected = false
+let itemDistance = 0
+let userDistance = 0
+let state = 0
 
 basic.forever(function () {
     itemDistance = grove.measureInCentimetersV2(DigitalPin.P1)
-    if (itemDistance <= 8) {
+    userDistance = grove.measureInCentimetersV2(DigitalPin.P0)
+
+    if (itemDistance <= 25) {
         showColor()
     } else {
         clearStrip()
     }
 
-    let userDistance = grove.measureInCentimetersV2(DigitalPin.P0)
-    if (userDistance <= 20 && !previouslyDetected) {
+    if (userDistance <= 4 && state == 0 && itemDistance > 25) {
         radio.sendString("openBox")
-        previouslyDetected = true
-    } else if (userDistance > 20 && previouslyDetected) {
+        state = 1
+    } else if (itemDistance <= 25 && state == 1) {
+        basic.pause(3500)
         radio.sendString("itemInBin")
-        radio.sendString("processing")
-        previouslyDetected = false
+        basic.pause(10000)
+        radio.sendString("processing")   
+        state = 2     
     }
-})
-
-input.onButtonPressed(Button.A, function () {
-    radio.sendString("itemInBin")
-    radio.sendString("processing")
-})
-
-input.onButtonPressed(Button.B, function() {
-    radio.sendString("openBox")
+    else if (itemDistance > 25 && state == 2) {
+        radio.sendString("processingEnd")
+        state = 0
+    }
 })

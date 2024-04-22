@@ -35,15 +35,3 @@ serial.onDataReceived(serial.delimiters(Delimiters.NewLine), () => {
     }
     radio.sendString("measureDistance")
 })
-
-input.onButtonPressed(Button.A, function () {
-    moveServoTowardMin()
-})
-
-input.onButtonPressed(Button.B, function () {
-    moveServoTowardMax()
-})
-
-basic.forever(function () {
-    basic.showIcon(IconNames.Happy)
-})

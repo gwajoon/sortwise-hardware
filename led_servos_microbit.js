@@ -2,43 +2,27 @@ radio.setGroup(7)
 let greenLightState = 1;
 let redLightState = 0;
 let blueLightState = 0;
-let processing = false;
-let itemInBin = false;
+updateLEDs();
 
 radio.onReceivedString(function (receivedString) {
     if (receivedString == "itemInBin") {
-        itemInBin = true;
+        blueLightState = 0;
+        greenLightState = 0;
+        redLightState = 1;
         resetServos();
-    } else if (receivedString == "itemNotInBin") {
-        itemInBin = false;
     } else if (receivedString == "processing") {
-        processing = true;
+        blueLightState = 1;
+        greenLightState = 0;
+        redLightState = 1;
     } else if (receivedString == "processingEnd") {
-        processing = false;
+        blueLightState = 0;
+        greenLightState = 1;
+        redLightState = 0;
     } else if (receivedString == "openBox") {
         servos.P1.setPulse(0)
     }
-})
-
-basic.forever(function () {
-    if (processing) {
-        basic.showString("P");
-        blueLightState = 1;
-    } else {
-        blueLightState = 0;
-
-        if (itemInBin) {
-            basic.showString("I");
-            greenLightState = 0;
-            redLightState = 1;
-        } else {
-            basic.showString("R");
-            greenLightState = 1;
-            redLightState = 0;
-        }
-    }
     updateLEDs();
-});
+})
 
 function updateLEDs() {
     pins.digitalWritePin(DigitalPin.P0, blueLightState);
